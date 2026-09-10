@@ -1,0 +1,32 @@
+name: ASI XAUUSD Autonomous Runner
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'  # Memastikan eksekusi terus berkesinambungan
+  workflow_dispatch:
+
+jobs:
+  run-asi-bot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run ASI Bot Autonomous Engine
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python bot_asi_sniper.py &
+          sleep 1700
+          pkill -f bot_asi_sniper.py || true
