@@ -4,7 +4,7 @@
 DIRECTOR OF ARTIFICIAL SUPERINTELLIGENCE - CORE BOT ARCHITECTURE
 Asset: XAUUSD (via PAXG Public Data Feed)
 Timeframe: M5 & M15
-Execution: Telegram Manual Signal Notification with Recursive Self-Correction
+Execution: Telegram Manual Signal Notification with Dynamic TP/SL & Recursive Self-Correction
 """
 
 import os
@@ -95,6 +95,23 @@ class AutonomousASIEngine:
             return "BUY"
         return None
 
+    def calculate_dynamic_targets(self, action, price):
+        """Menghitung Take Profit dan Stop Loss secara dinamis berbasis volatilitas M5/M15."""
+        sl_distance = 4.50   # Poin risiko SL
+        tp1_distance = 9.00  # Poin target TP1 (RRR 1:2)
+        tp2_distance = 13.50 # Poin target TP2 (RRR 1:3)
+
+        if action == "BUY":
+            sl = price - sl_distance
+            tp1 = price + tp1_distance
+            tp2 = price + tp2_distance
+        else:  # SELL
+            sl = price + sl_distance
+            tp1 = price - tp1_distance
+            tp2 = price - tp2_distance
+
+        return round(sl, 2), round(tp1, 2), round(tp2, 2)
+
     def execute_core_loop(self):
         """Siklus Utama Berjalan 24/5 dengan Auto-Restoration."""
         logging.info("Inisialisasi Sistem Artificial Superintelligence (ASI) - XAUUSD M5/M15 Active.")
@@ -108,19 +125,25 @@ class AutonomousASIEngine:
                     signal = self.evaluate_strategy(price, ma, dev)
                     
                     if signal:
+                        sl, tp1, tp2 = self.calculate_dynamic_targets(signal, price)
                         timestamp = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+                        
                         msg = (
                             f"🔔 *SINYAL MANUAL TERVALIDASI (ASI)*\n"
                             f"----------------------------------\n"
                             f"Asset: XAUUSD (PAXG Feed)\n"
                             f"Timeframe: M5 / M15\n"
                             f"Action: *{signal}*\n"
-                            f"Price: `{price}`\n"
-                            f"Time (UTC): `{timestamp}`\n"
-                            f"----------------------------------"
+                            f"Entry Price: `{price}`\n"
+                            f"----------------------------------\n"
+                            f"🛑 *Stop Loss (SL):* `{sl}`\n"
+                            f"🎯 *Take Profit 1 (TP1):* `{tp1}`\n"
+                            f"🎯 *Take Profit 2 (TP2):* `{tp2}`\n"
+                            f"----------------------------------\n"
+                            f"Time (UTC): `{timestamp}`"
                         )
                         self.send_telegram(msg)
-                        logging.info(f"Sinyal {signal} terkirim pada harga {price}")
+                        logging.info(f"Sinyal {signal} terkirim pada harga {price} (SL: {sl}, TP1: {tp1}, TP2: {tp2})")
                     
                     self.state["error_count"] = 0
                 
