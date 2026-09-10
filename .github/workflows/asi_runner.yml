@@ -1,8 +1,8 @@
-name: ASI XAUUSD Autonomous Runner
+name: ASI XAUUSD Manual Runner
 
 on:
-  schedule:
-    - cron: '*/30 * * * *'  # Memastikan eksekusi terus berkesinambungan
+  # Cron schedule dihapus untuk mencegah pelanggaran Terms of Service GitHub.
+  # Gunakan workflow_dispatch agar bisa dijalankan secara manual jika diperlukan.
   workflow_dispatch:
 
 jobs:
@@ -21,12 +21,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          # Menambahkan instalasi websocket-client secara eksplisit untuk mencegah error module
+          pip install websocket-client
 
       - name: Run ASI Bot Autonomous Engine
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          python bot_asi_sniper.py &
-          sleep 1700
-          pkill -f bot_asi_sniper.py || true
+          python bot_asi_sniper.py
