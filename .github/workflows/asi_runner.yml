@@ -1,8 +1,6 @@
 name: ASI XAUUSD Manual Runner
 
 on:
-  # Cron schedule dihapus untuk mencegah pelanggaran Terms of Service GitHub.
-  # Gunakan workflow_dispatch agar bisa dijalankan secara manual jika diperlukan.
   workflow_dispatch:
 
 jobs:
@@ -21,7 +19,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          # Menambahkan instalasi websocket-client secara eksplisit untuk mencegah error module
           pip install websocket-client
 
       - name: Run ASI Bot Autonomous Engine
